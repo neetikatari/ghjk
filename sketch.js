@@ -25,7 +25,7 @@ function preload(){
   bgImage = loadImage("assets/BG1.png");
 }
 function setup() {
-  createCanvas(displayWidth,displayHeight-200);
+  createCanvas(displayWidth,displayHeight-150);
   /*carrot = createSprite(400, 200, 50, 50);
   carrot.addImage(carrotImage);
   carrot.scale= 0.15;*/
@@ -47,12 +47,15 @@ function setup() {
   restart.visible = false;
 
   ground = createSprite(width/2 , height-100,width,10)
+  ground.addImage(bgImage)
+  ground.depth = -1
   invisibleGround = createSprite(width/2 , height-100,width,5)
+  invisibleGround.visible=false
 }
 
 function draw() {
   //rabbit.debug = true;
-  background(255);
+  background(0);
   //text("Score: "+ score, 500,50);
   text("Carrots eaten: "+ carrot, 500,50);
   if (gameState===PLAY){
