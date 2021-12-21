@@ -8,10 +8,10 @@ var PLAY = 1;
 var END = 0;
 var gameState=PLAY;
 var score = 0;
-
+var carrot =0;
 function preload(){
   carrotImage = loadImage("assets/goldencarrot.png");
-  rabbitImage = loadAnimation("assets/r1.png" , "assets/r2.png" , "assets/r3.png" , "assets/r4.png" , "assets/r5.png" , "assets/r6.png");
+  rabbitImage = loadAnimation("assets/r1.png" , "assets/r2.png" , "assets/r4.png"  );
   redbirdImage = loadAnimation("assets/rb1.png" , "assets/rb2.png" , "assets/rb3.png");
   birdImage = loadAnimation("assets/b1.png" , "assets/b2.png" , "assets/b3.png"  , "assets/b4.png");
 //  rabbit_collided= loadAnimation("assets/")
@@ -29,11 +29,13 @@ function setup() {
   /*carrot = createSprite(400, 200, 50, 50);
   carrot.addImage(carrotImage);
   carrot.scale= 0.15;*/
-  rabbit = createSprite(200 , height-200);
+  rabbit = createSprite(300 , height-200);
   rabbit.addAnimation("running" , rabbitImage);
-  rabbit.scale = 1.3
+  rabbit.scale = 1.1
 //  rabbit.addAnimation("collided",rabbit_collided);
   rabbit.scale=1.2;
+  rabbit.debug = true
+  rabbit.setCollider("rectangle",0,0,100,100)
  
   carrotsGroup = createGroup();
   birdsGroup = createGroup();
@@ -41,6 +43,8 @@ function setup() {
 
   restart = createSprite(width/2 , height/2,30,30);
   gameOver = createSprite(width/2 , height/2,200,20);
+  gameOver.visible = false;
+  restart.visible = false;
 
   ground = createSprite(width/2 , height-100,width,10)
   invisibleGround = createSprite(width/2 , height-100,width,5)
@@ -49,12 +53,15 @@ function setup() {
 function draw() {
   //rabbit.debug = true;
   background(255);
-  text("Score: "+ score, 500,50);
-  
+  //text("Score: "+ score, 500,50);
+  text("Carrots eaten: "+ carrot, 500,50);
   if (gameState===PLAY){
     score = score + Math.round(getFrameRate()/60);
     ground.velocityX = -(6 + 3*score/100);
-  
+    if(carrotsGroup.isTouching(rabbit)){
+      carrot+=1
+      carrotsGroup.destroyEach();
+    }
     if(keyDown("space") && rabbit.y >= height-350) {
       rabbit.velocityY = -12;
     }
@@ -83,14 +90,14 @@ function draw() {
     rabbit.velocityY = 0;
     obstaclesGroup.setVelocityXEach(0);
     carrotsGroup.setVelocityXEach(0);
-    
+    birdsGroup.setVelocityXEach(0);
     //change the rabbit animation
  //   rabbit.changeAnimation("collided",rabbit_collided);
     
     //set lifetime of the game objects so that they are never destroyed
     obstaclesGroup.setLifetimeEach(-1);
     carrotsGroup.setLifetimeEach(-1);
-    
+    birdsGroup.setLifetimeEach(-1);
     if(mousePressedOver(restart)) {
       reset();
     }
@@ -102,12 +109,12 @@ function draw() {
 
 function spawncarrots() {
   //write code here to spawn the carrots
-  if (frameCount % 60 === 0) {
+  if (frameCount % 290 === 0) {
     var carrot = createSprite(width,height-400,40,10);
     carrot.y = Math.round(random(height-400,height-300));
     carrot.addImage(carrotImage);
     carrot.scale = 0.2;
-    carrot.velocityX = -3;
+    carrot.velocityX = -4;
     
      //assign lifetime to the variable
     carrot.lifetime = 700;
@@ -120,9 +127,9 @@ function spawncarrots() {
 }
 function spawnBirds() {
   //write code here to spawn the bird
-  if (frameCount % 60 === 0) {
+  if (frameCount % 1000 === 0) {
     var bird = createSprite(width,height-400,40,10);
-    bird.y = Math.round(random(80,120));
+    bird.y = Math.round(random(120,250));
     var rand = Math.round(random(1,2));
     bird.addAnimation("b",birdImage);
     bird.addAnimation("r",redbirdImage);
@@ -138,7 +145,7 @@ function spawnBirds() {
 
     //random velocity for birds so they can move in y
 
-
+    
     //assign lifetime to the variable
     bird.lifetime = 700;
     
@@ -149,10 +156,10 @@ function spawnBirds() {
 }
 
 function spawnObstacles() {
-  if(frameCount % 60 === 0) {
-    var obstacle = createSprite(width,height-150,10,40);
+  if(frameCount % 120 === 0) {
+    var obstacle = createSprite(width,height-100,10,40);
     //obstacle.debug = true;
-    obstacle.velocityX = -(6 + 3*score/100);
+    obstacle.velocityX = -6
     
     //generate random obstacles
     var rand = Math.round(random(1,6));
@@ -175,8 +182,9 @@ function spawnObstacles() {
     }
     
     //assign scale and lifetime to the obstacle           
-    obstacle.scale = 0.3;
+    obstacle.scale = 0.4;
     obstacle.lifetime = 400;
+    obstacle.debug=true
     //add each obstacle to the group
     obstaclesGroup.add(obstacle);
   }
@@ -189,7 +197,8 @@ function reset(){
   
   obstaclesGroup.destroyEach();
   carrotsGroup.destroyEach();
-  
+  birdsGroup.destroyEach();
+
   rabbit.changeAnimation("running",rabbit_running);
   
   //if(localStorage["HighestScore"]<score){
@@ -197,6 +206,6 @@ function reset(){
  // }
   //console.log(localStorage["HighestScore"]);
   
-  score = 0;
-  
+  carrot = 0;
+  score = 0; 
 }
